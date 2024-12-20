@@ -245,25 +245,55 @@ function updateCameraVectors() {
 }
 
 function checkCollision(newPosition) {
-    // Dimensiones de la habitación (tomadas del código original)
-    const roomWidth = 20.0;  // Ancho total de la habitación
-    const roomDepth = 20.0;  // Profundidad total de la habitación
-    
-    // Margen de colisión para evitar que la cámara se pegue demasiado a las paredes
-    const collisionMargin = 0.5;
-    
-    // Límites de la habitación
-    const minX = -roomWidth/2 + collisionMargin;
-    const maxX = roomWidth/2 - collisionMargin;
-    const minZ = -roomDepth/2 + collisionMargin;
-    const maxZ = roomDepth/2 - collisionMargin;
-    
-    // Aplicar restricciones
-    return [
-        Math.max(minX, Math.min(maxX, newPosition[0])),  // X
-        newPosition[1],                                   // Y (sin restricción)
-        Math.max(minZ, Math.min(maxZ, newPosition[2]))   // Z
-    ];
+  // Dimensiones de la habitación
+  const roomWidth = 20.0;
+  const roomDepth = 20.0;
+  const collisionMargin = 0.5;
+  
+  // Límites de la habitación
+  const minX = -roomWidth/2 + collisionMargin;
+  const maxX = roomWidth/2 - collisionMargin;
+  const minZ = -roomDepth/2 + collisionMargin;
+  const maxZ = roomDepth/2 - collisionMargin;
+  
+  // Dimensiones del cubo
+  const cubePosition = [0.0, 0.5, 0.0];  // Posición del centro del cubo
+  const cubeSize = 1.0;  // Tamaño del cubo
+  const cubeMargin = collisionMargin;
+  
+  // Comprobar colisión con el cubo
+  const distanceToCube = {
+      x: Math.abs(newPosition[0] - cubePosition[0]),
+      z: Math.abs(newPosition[2] - cubePosition[2])
+  };
+  
+  // Si estamos dentro del área del cubo
+  if (distanceToCube.x < (cubeSize/2 + cubeMargin) && 
+      distanceToCube.z < (cubeSize/2 + cubeMargin)) {
+      
+      // Calcular la dirección desde la que venimos
+      const fromDirection = vec3.subtract(vec3.create(), newPosition, cameraPosition);
+      
+      // Determinar en qué lado del cubo estamos y ajustar la posición
+      if (distanceToCube.x > distanceToCube.z) {
+          // Colisión en el eje X
+          newPosition[0] = cubePosition[0] + 
+                         (newPosition[0] > cubePosition[0] ? 1 : -1) * 
+                         (cubeSize/2 + cubeMargin);
+      } else {
+          // Colisión en el eje Z
+          newPosition[2] = cubePosition[2] + 
+                         (newPosition[2] > cubePosition[2] ? 1 : -1) * 
+                         (cubeSize/2 + cubeMargin);
+      }
+  }
+  
+  // Aplicar restricciones de la habitación
+  return [
+      Math.max(minX, Math.min(maxX, newPosition[0])),
+      newPosition[1],
+      Math.max(minZ, Math.min(maxZ, newPosition[2]))
+  ];
 }
 
 function initHandlers() {
@@ -305,41 +335,45 @@ function initHandlers() {
     });
 
     function updateMovement() {
-        if (Object.values(keys).some(key => key)) {
-            // Vector derecho para movimiento lateral
-            const rightVector = vec3.create();
-            vec3.cross(rightVector, cameraFront, cameraUp);
-            vec3.normalize(rightVector, rightVector);
-
-            // Vector frontal normalizado para movimiento adelante/atrás
-            const frontVector = vec3.fromValues(cameraFront[0], 0, cameraFront[2]);
-            vec3.normalize(frontVector, frontVector);
-
-            const moveVector = vec3.create();
-
-            // Movimiento adelante/atrás
-            if (keys["w"]) vec3.scaleAndAdd(moveVector, moveVector, frontVector, moveSpeed);
-            if (keys["s"]) vec3.scaleAndAdd(moveVector, moveVector, frontVector, -moveSpeed);
-
-            // Movimiento lateral
-            if (keys["a"]) vec3.scaleAndAdd(moveVector, moveVector, rightVector, -moveSpeed);
-            if (keys["d"]) vec3.scaleAndAdd(moveVector, moveVector, rightVector, moveSpeed);
-
-            // Calcular la nueva posición deseada
-        const newPosition = vec3.create();
-        vec3.add(newPosition, cameraPosition, moveVector);
-        
-        // Verificar y ajustar la posición para evitar colisiones
-        const adjustedPosition = checkCollision(newPosition);
-        
-        // Actualizar la posición de la cámara
-        vec3.copy(cameraPosition, adjustedPosition);
-        
-        requestAnimationFrame(drawScene);
-        }
-
-        requestAnimationFrame(updateMovement);
-    }
+      if (Object.values(keys).some(key => key)) {
+          const rightVector = vec3.create();
+          vec3.cross(rightVector, cameraFront, cameraUp);
+          vec3.normalize(rightVector, rightVector);
+  
+          const frontVector = vec3.fromValues(cameraFront[0], 0, cameraFront[2]);
+          vec3.normalize(frontVector, frontVector);
+  
+          const moveVector = vec3.create();
+          const newPosition = vec3.create();
+          vec3.copy(newPosition, cameraPosition);
+  
+          // Calcular y verificar el movimiento por separado para cada dirección
+          if (keys["w"] || keys["s"]) {
+              const tempPos = vec3.create();
+              vec3.copy(tempPos, newPosition);
+              vec3.scaleAndAdd(tempPos, tempPos, frontVector, 
+                             keys["w"] ? moveSpeed : -moveSpeed);
+              const checkedPos = checkCollision(tempPos);
+              vec3.copy(newPosition, checkedPos);
+          }
+  
+          if (keys["a"] || keys["d"]) {
+              const tempPos = vec3.create();
+              vec3.copy(tempPos, newPosition);
+              vec3.scaleAndAdd(tempPos, tempPos, rightVector, 
+                             keys["d"] ? moveSpeed : -moveSpeed);
+              const checkedPos = checkCollision(tempPos);
+              vec3.copy(newPosition, checkedPos);
+          }
+  
+          // Actualizar la posición de la cámara
+          vec3.copy(cameraPosition, newPosition);
+          
+          requestAnimationFrame(drawScene);
+      }
+  
+      requestAnimationFrame(updateMovement);
+  }
 
     requestAnimationFrame(updateMovement);
 }

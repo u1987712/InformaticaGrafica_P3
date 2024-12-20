@@ -1,0 +1,16 @@
+Mierda de práctica 3 de InfoGráfica:
+
+1.Crear habitación vacía (suelo, techo, paredes)
+2.Añadir la cámara en 1a persona con controles
+3.Importar objetos 3D (ALTAR A SUZANNE HAHHAHAHA)
+4. Animar un objeto (SUZZANE FLOTA Y SE HACE GRANDE/DA UNA VUELTA)
+
+5.Añadir 3 lucecitas(qué salgan de esferas en el techo o algo así)
+6.Añadir botones on/off para cada luz
+7.Añadir sliders para cambiar la intensidad y el color para cada luz
+
+8.Implementar shader realista
+9.Implementar shader no realista (toon shader)
+10.Añadir texturas con imágenes y procedurales
+
+11.Informe de los huevos
