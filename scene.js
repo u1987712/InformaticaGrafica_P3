@@ -1,8 +1,8 @@
   function drawScene() {
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    setShaderProjectionMatrix(getProjectionMatrix());
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // se inicializan los buffers de color y de profundidad
+    setShaderProjectionMatrix(getProjectionMatrix());// se obtiene la matriz de transformacion de la proyeccion y se envia al shader
   
-    // Dibujar el objeto seleccionado
+    // Dibujar el objeto 
     var modelMatrix = mat4.create();
     var modelViewMatrix = mat4.create();
     mat4.fromTranslation(modelMatrix, [0.0, 2, 0.0]);
@@ -10,6 +10,7 @@
     setShaderModelViewMatrix(modelViewMatrix);
   
     setShaderNormalMatrix(getNormalMatrix(modelViewMatrix));
+    setShaderMaterial(Polished_gold);
     drawSolidOBJ(suzzane);
   
     // Dibujar el cubo
@@ -20,6 +21,7 @@
     mat4.multiply(modelViewMatrixCube, getCameraMatrix(), modelMatrixCube);
     setShaderModelViewMatrix(modelViewMatrixCube);
     setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCube));
+    setShaderMaterial(Chrome);
     drawSolid(exampleCube);
   
     // Dibujar el plano (suelo)
@@ -30,12 +32,14 @@
     mat4.multiply(modelViewMatrixPlane, getCameraMatrix(), modelMatrixPlane);
     setShaderModelViewMatrix(modelViewMatrixPlane);
     setShaderNormalMatrix(getNormalMatrix(modelViewMatrixPlane));
+    setShaderMaterial(Perl);
     drawSolid(examplePlane); // Dibujar el plano
   
     // Ajustes para las paredes
     var wallThickness = 0.5; // Grosor de las paredes
     var wallHeight = 5.0;    // Altura de las paredes
     var planeLength = 20.0;  // Dimensiones del plano (escala aplicada)
+    setShaderMaterial(Perl);
   
     // Pared Frontal
     var modelMatrixWallFront = mat4.create();
@@ -85,5 +89,6 @@
     mat4.multiply(modelViewMatrixCeiling, getCameraMatrix(), modelMatrixCeiling);
     setShaderModelViewMatrix(modelViewMatrixCeiling);
     setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCeiling));
+    setShaderMaterial(White_rubber);
     drawSolid(examplePlane); // Dibujar el plano
   }

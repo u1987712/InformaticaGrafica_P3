@@ -10,6 +10,7 @@ function getWebGLContext() {
 }
 
 function initShaders() { 
+    
   var vertexShader = gl.createShader(gl.VERTEX_SHADER);
   gl.shaderSource(vertexShader, document.getElementById("myVertexShader").text);
   gl.compileShader(vertexShader);
@@ -29,43 +30,61 @@ function initShaders() {
   program = gl.createProgram();
   gl.attachShader(program, vertexShader);
   gl.attachShader(program, fragmentShader);
+  
   gl.linkProgram(program);
+    
   gl.useProgram(program);
-
-  program.vertexPositionAttribute = gl.getAttribLocation(program, "VertexPosition");
+    
+  program.vertexPositionAttribute = gl.getAttribLocation( program, "VertexPosition");
   gl.enableVertexAttribArray(program.vertexPositionAttribute);
 
-  program.modelViewMatrixIndex = gl.getUniformLocation(program, "modelViewMatrix");
-  program.projectionMatrixIndex = gl.getUniformLocation(program, "projectionMatrix");
-
-  program.vertexNormalAttribute = gl.getAttribLocation(program, "VertexNormal");
-  program.normalMatrixIndex = gl.getUniformLocation(program, "normalMatrix");
+  program.modelViewMatrixIndex  = gl.getUniformLocation( program, "modelViewMatrix");
+  program.projectionMatrixIndex = gl.getUniformLocation( program, "projectionMatrix");
+  
+  // normales
+  // this may not change
+  program.vertexNormalAttribute = gl.getAttribLocation ( program, "VertexNormal");
+  program.normalMatrixIndex     = gl.getUniformLocation( program, "normalMatrix");
   gl.enableVertexAttribArray(program.vertexNormalAttribute);
 
-  program.LaIndex = gl.getUniformLocation(program, "Light.La");
-  program.LdIndex = gl.getUniformLocation(program, "Light.Ld");
-  program.LsIndex = gl.getUniformLocation(program, "Light.Ls");
-  program.PositionIndex = gl.getUniformLocation(program, "Light.Position");
+  // material
+  program.KaIndex               = gl.getUniformLocation( program, "Material.Ka");
+  program.KdIndex               = gl.getUniformLocation( program, "Material.Kd");
+  program.KsIndex               = gl.getUniformLocation( program, "Material.Ks");
+  program.alphaIndex            = gl.getUniformLocation( program, "Material.alpha");
+
+  // fuente de luz
+  program.LaIndex               = gl.getUniformLocation( program, "Light.La");
+  program.LdIndex               = gl.getUniformLocation( program, "Light.Ld");
+  program.LsIndex               = gl.getUniformLocation( program, "Light.Ls");
+  program.PositionIndex         = gl.getUniformLocation( program, "Light.Position");
+  
 }
 
 function initRendering() { 
-  gl.clearColor(0.95, 0.95, 0.95, 1.0);
+
+  gl.clearColor(0.95,0.95,0.95,1.0);
   gl.enable(gl.DEPTH_TEST);
+  
   setShaderLight();
+
 }
 
 function initBuffers(model) {
-  model.idBufferVertices = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.idBufferVertices);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertices), gl.STATIC_DRAW);
+    
+  model.idBufferVertices = gl.createBuffer ();
+  gl.bindBuffer (gl.ARRAY_BUFFER, model.idBufferVertices);
+  gl.bufferData (gl.ARRAY_BUFFER, new Float32Array(model.vertices), gl.STATIC_DRAW);
+    
+  // here we should pass the buffer for normals
+  model.idBufferNormals = gl.createBuffer ();
+  gl.bindBuffer (gl.ARRAY_BUFFER, model.idBufferNormals);
+  gl.bufferData (gl.ARRAY_BUFFER, new Float32Array(model.vertexNormals), gl.STATIC_DRAW);
+  
+  model.idBufferIndices = gl.createBuffer ();
+  gl.bindBuffer (gl.ELEMENT_ARRAY_BUFFER, model.idBufferIndices);
+  gl.bufferData (gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.indices), gl.STATIC_DRAW);
 
-  model.idBufferNormals = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.idBufferNormals);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(model.vertexNormals), gl.STATIC_DRAW);
-
-  model.idBufferIndices = gl.createBuffer();
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.idBufferIndices);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(model.indices), gl.STATIC_DRAW);
 }
 
 function initPrimitives() {
@@ -76,50 +95,79 @@ function initPrimitives() {
 }
 
 function setShaderProjectionMatrix(projectionMatrix) {
+  
   gl.uniformMatrix4fv(program.projectionMatrixIndex, false, projectionMatrix);
+  
 }
 
 function setShaderModelViewMatrix(modelViewMatrix) {
+  
   gl.uniformMatrix4fv(program.modelViewMatrixIndex, false, modelViewMatrix);
+  
 }
 
 function setShaderNormalMatrix(normalMatrix) {
+  
   gl.uniformMatrix3fv(program.normalMatrixIndex, false, normalMatrix);
+  
 }
 
 function getNormalMatrix(modelViewMatrix) {
+  
   return mat3.normalFromMat4(mat3.create(), modelViewMatrix);
+  
 }
 
 function getProjectionMatrix() {
+  
   return mat4.perspective(mat4.create(), fovy, 1.0, 0.1, 100.0);
+  
+}
+
+function setShaderMaterial(material) {
+
+  gl.uniform3fv(program.KaIndex,    material.mat_ambient);
+  gl.uniform3fv(program.KdIndex,    material.mat_diffuse);
+  gl.uniform3fv(program.KsIndex,    material.mat_specular);
+  gl.uniform1f (program.alphaIndex, material.alpha);
+  
 }
 
 function setShaderLight() {
-  gl.uniform3f(program.LaIndex, 1.0, 1.0, 1.0);
-  gl.uniform3f(program.LdIndex, 1.0, 1.0, 1.0);
-  gl.uniform3f(program.LsIndex, 1.0, 1.0, 1.0);
-  gl.uniform3f(program.PositionIndex, 0.0, 0.0, 10.0);
+
+  gl.uniform3f(program.LaIndex,        1.0,  1.0, 1.0);
+  gl.uniform3f(program.LdIndex,        1.0,  1.0, 1.0);
+  gl.uniform3f(program.LsIndex,        1.0,  1.0, 1.0);
+  gl.uniform3f(program.PositionIndex, 0.0, 0.0, 10.0); // en coordenadas del ojo
+  
 }
 
+// draw OBJ
 function drawSolidOBJ(model) { 
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.idBufferVertices);
-  gl.vertexAttribPointer(program.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+  // here we should change the way to decode the vertex and normals
+  // vertex
+  gl.bindBuffer (gl.ARRAY_BUFFER, model.idBufferVertices);
+  gl.vertexAttribPointer (program.vertexPositionAttribute, 3, gl.FLOAT, false, 0,   0);
+  
+  // normals
+  gl.bindBuffer (gl.ARRAY_BUFFER, model.idBufferNormals);
+  gl.vertexAttribPointer (program.vertexNormalAttribute,   3, gl.FLOAT, false, 0, 0);
+    
+  gl.bindBuffer   (gl.ELEMENT_ARRAY_BUFFER, model.idBufferIndices);
+  gl.drawElements (gl.TRIANGLES, model.indices.length, gl.UNSIGNED_SHORT, 0);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.idBufferNormals);
-  gl.vertexAttribPointer(program.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.idBufferIndices);
-  gl.drawElements(gl.TRIANGLES, model.indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
+// draw primitive
 function drawSolid(model) { 
-  gl.bindBuffer(gl.ARRAY_BUFFER, model.idBufferVertices);
-  gl.vertexAttribPointer(program.vertexPositionAttribute, 3, gl.FLOAT, false, 2*3*4, 0);
-  gl.vertexAttribPointer(program.vertexNormalAttribute, 3, gl.FLOAT, false, 2*3*4, 3*4);
+    
+  gl.bindBuffer (gl.ARRAY_BUFFER, model.idBufferVertices);
+  gl.vertexAttribPointer (program.vertexPositionAttribute, 3, gl.FLOAT, false, 2*3*4,   0);
+  gl.vertexAttribPointer (program.vertexNormalAttribute,   3, gl.FLOAT, false, 2*3*4, 3*4);
+    
+  gl.bindBuffer   (gl.ELEMENT_ARRAY_BUFFER, model.idBufferIndices);
+  gl.drawElements (gl.TRIANGLES, model.indices.length, gl.UNSIGNED_SHORT, 0);
 
-  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.idBufferIndices);
-  gl.drawElements(gl.TRIANGLES, model.indices.length, gl.UNSIGNED_SHORT, 0);
 }
 
 function initHandlers() {
