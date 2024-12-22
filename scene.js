@@ -1,29 +1,13 @@
   function drawScene() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); // se inicializan los buffers de color y de profundidad
     setShaderProjectionMatrix(getProjectionMatrix());// se obtiene la matriz de transformacion de la proyeccion y se envia al shader
-  
-    // Dibujar el objeto 
-    var modelMatrix = mat4.create();
-    var modelViewMatrix = mat4.create();
-    mat4.fromTranslation(modelMatrix, [0.0, 2, 0.0]);
-    mat4.multiply(modelViewMatrix, getCameraMatrix(), modelMatrix);
-    setShaderModelViewMatrix(modelViewMatrix);
-  
-    setShaderNormalMatrix(getNormalMatrix(modelViewMatrix));
-    setShaderMaterial(Polished_gold);
-    drawSolidOBJ(suzzane);
-  
-    // Dibujar el cubo
-    var modelMatrixCube = mat4.create();
-    var modelViewMatrixCube = mat4.create();
-    mat4.translate(modelMatrixCube, modelMatrixCube, [0.0, 0.5, 0.0]);
-    mat4.scale(modelMatrixCube, modelMatrixCube, [3, 1, 3]);
-    mat4.multiply(modelViewMatrixCube, getCameraMatrix(), modelMatrixCube);
-    setShaderModelViewMatrix(modelViewMatrixCube);
-    setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCube));
-    setShaderMaterial(Chrome);
-    drawSolid(exampleCube);
-  
+
+    drawRoom();
+    drawCube();
+    drawSuzzane();  
+  }
+
+  function drawRoom(){
     // Dibujar el plano (suelo)
     var modelMatrixPlane = mat4.create();
     var modelViewMatrixPlane = mat4.create();
@@ -91,4 +75,31 @@
     setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCeiling));
     setShaderMaterial(White_rubber);
     drawSolid(examplePlane); // Dibujar el plano
+  }
+
+  function drawCube(){
+// Dibujar el cubo
+    var modelMatrixCube = mat4.create();
+    var modelViewMatrixCube = mat4.create();
+    mat4.translate(modelMatrixCube, modelMatrixCube, [0.0, 0.5, 0.0]);
+    mat4.scale(modelMatrixCube, modelMatrixCube, [3, 1, 3]);
+    mat4.multiply(modelViewMatrixCube, getCameraMatrix(), modelMatrixCube);
+    setShaderModelViewMatrix(modelViewMatrixCube);
+    setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCube));
+    setShaderMaterial(Chrome);
+    drawSolid(exampleCube);
+  }
+
+  function drawSuzzane(){
+    
+    // Dibujar el objeto 
+    var modelMatrix = mat4.create();
+    var modelViewMatrix = mat4.create();
+    mat4.fromTranslation(modelMatrix, [0.0, 2, 0.0]);
+    mat4.multiply(modelViewMatrix, getCameraMatrix(), modelMatrix);
+    setShaderModelViewMatrix(modelViewMatrix);
+  
+    setShaderNormalMatrix(getNormalMatrix(modelViewMatrix));
+    setShaderMaterial(Polished_gold);
+    drawSolidOBJ(suzzane);
   }
