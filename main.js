@@ -53,12 +53,16 @@ function initShaders() {
   program.KsIndex               = gl.getUniformLocation( program, "Material.Ks");
   program.alphaIndex            = gl.getUniformLocation( program, "Material.alpha");
 
-  // fuente de luz
-  program.LaIndex               = gl.getUniformLocation( program, "Light.La");
-  program.LdIndex               = gl.getUniformLocation( program, "Light.Ld");
-  program.LsIndex               = gl.getUniformLocation( program, "Light.Ls");
-  program.PositionIndex         = gl.getUniformLocation( program, "Light.Position");
-  
+  // fuentes de luz
+  program.lightUniforms = [];
+    for(let i = 0; i < 3; i++) {
+        program.lightUniforms[i] = {
+            LaIndex: gl.getUniformLocation(program, `Light[${i}].La`),
+            LdIndex: gl.getUniformLocation(program, `Light[${i}].Ld`),
+            LsIndex: gl.getUniformLocation(program, `Light[${i}].Ls`),
+            PositionIndex: gl.getUniformLocation(program, `Light[${i}].Position`)
+        };
+    }  
 }
 
 function initRendering() { 
@@ -133,13 +137,29 @@ function setShaderMaterial(material) {
   
 }
 
-var Lpos = [0.0, 4.75, 9.75, 1];
 function setShaderLight() {
 
-  gl.uniform3f(program.LaIndex,        1.0,  1.0, 1.0);
+    //Luz 1 (Frontal)
+    gl.uniform3f(program.lightUniforms[0].LaIndex, 0.2, 0.2, 0.2);  // Ambiente suave
+    gl.uniform3f(program.lightUniforms[0].LdIndex, 1.0, 1.0, 1.0);  // Difusa blanca
+    gl.uniform3f(program.lightUniforms[0].LsIndex, 1.0, 1.0, 1.0);  // Especular blanca
+    gl.uniform3f(program.lightUniforms[0].PositionIndex, 0.0, 4.75, 9.75,);  // Posición arriba
+
+    // Luz 2 (lateral izquierda)
+    gl.uniform3f(program.lightUniforms[1].LaIndex, 0.1, 0.1, 0.1);
+    gl.uniform3f(program.lightUniforms[1].LdIndex, 0.8, 0.0, 0.0);  // Luz roja
+    gl.uniform3f(program.lightUniforms[1].LsIndex, 0.8, 0.0, 0.0);
+    gl.uniform3f(program.lightUniforms[1].PositionIndex, -9.75, 4.75, 0.0);
+
+    // Luz 3 (lateral derecha)
+    gl.uniform3f(program.lightUniforms[2].LaIndex, 0.1, 0.1, 0.1);
+    gl.uniform3f(program.lightUniforms[2].LdIndex, 0.0, 0.0, 0.8);  // Luz azul
+    gl.uniform3f(program.lightUniforms[2].LsIndex, 1.0, 1.0, 1.0);
+    gl.uniform3f(program.lightUniforms[2].PositionIndex, 9.75, 4.75, 0.0);
+  /*gl.uniform3f(program.LaIndex,        1.0,  1.0, 1.0);
   gl.uniform3f(program.LdIndex,        1.0,  1.0, 1.0);
   gl.uniform3f(program.LsIndex,        1.0,  1.0, 1.0);
-  gl.uniform3f(program.PositionIndex, Lpos[0], Lpos[1], Lpos[2]);
+  gl.uniform3f(program.PositionIndex, Lpos[0], Lpos[1], Lpos[2]);*/
 }
 
 // draw OBJ
@@ -252,35 +272,72 @@ function initHandlers() {
   var colors = document.getElementsByTagName("input");
 
   for (var i = 0; i < colors.length; i++) {
-    colors[i].addEventListener("change",
-    function(){
-      switch (this.getAttribute("name")) {
-        case "La": setColor(program.LaIndex, colors[0].value); break;
-        case "Ld": setColor(program.LdIndex, colors[1].value); break;
-        case "Ls": setColor(program.LsIndex, colors[2].value); break;
-      }
-      requestAnimationFrame(drawScene);
-    },
-    false);
+      colors[i].addEventListener("change", function() {
+          // Cambiar la luz correspondiente según el nombre del input
+          switch (this.getAttribute("name")) {
+              case "La1": 
+                  setColor(program.lightUniforms[0].LaIndex, this.value, 0); break;
+              case "Ld1": 
+                  setColor(program.lightUniforms[0].LdIndex, this.value, 0); break;
+              case "Ls1": 
+                  setColor(program.lightUniforms[0].LsIndex, this.value, 0); break;
+  
+              case "La2": 
+                  setColor(program.lightUniforms[1].LaIndex, this.value, 1); break;
+              case "Ld2": 
+                  setColor(program.lightUniforms[1].LdIndex, this.value, 1); break;
+              case "Ls2": 
+                  setColor(program.lightUniforms[1].LsIndex, this.value, 1); break;
+  
+              case "La3": 
+                  setColor(program.lightUniforms[2].LaIndex, this.value, 2); break;
+              case "Ld3": 
+                  setColor(program.lightUniforms[2].LdIndex, this.value, 2); break;
+              case "Ls3": 
+                  setColor(program.lightUniforms[2].LsIndex, this.value, 2); break;
+          }
+          requestAnimationFrame(drawScene);
+      }, false);
+  }
+
+  var lights = document.querySelectorAll("input[type=checkbox]");
+
+  for (var i = 0; i < lights.length; i++) {
+      lights[i].addEventListener("change", function() {
+          var lightIndex = this.id.charAt(this.id.length - 1) - 1; // Para identificar la luz 1, 2 o 3
+          updateLightState(lightIndex, this.checked);
+          requestAnimationFrame(drawScene);
+      }, false);
   }
 
     requestAnimationFrame(updateMovement);
 }
 
-function setColor (index, value) {
+function setColor(index, value, lightIndex) {
+  var myColor = value.substr(1); // Para eliminar el # del #FCA34D
 
-  var myColor = value.substr(1); // para eliminar el # del #FCA34D
-      
-  var r = myColor.charAt(0) + '' + myColor.charAt(1);
-  var g = myColor.charAt(2) + '' + myColor.charAt(3);
-  var b = myColor.charAt(4) + '' + myColor.charAt(5);
+  var r = parseInt(myColor.charAt(0) + myColor.charAt(1), 16) / 255.0;
+  var g = parseInt(myColor.charAt(2) + myColor.charAt(3), 16) / 255.0;
+  var b = parseInt(myColor.charAt(4) + myColor.charAt(5), 16) / 255.0;
 
-  r = parseInt(r, 16) / 255.0;
-  g = parseInt(g, 16) / 255.0;
-  b = parseInt(b, 16) / 255.0;
-  
-  gl.uniform3f(index, r, g, b);
-  
+  gl.uniform3f(index, r, g, b); // Para la fuente de luz correspondiente
+}
+
+function updateLightState(lightIndex, isChecked) {
+  // Si el checkbox está marcado, la luz está encendida; si no, apagada
+  var lightUniform = program.lightUniforms[lightIndex];
+
+  if (isChecked) {
+      // Si la luz está encendida, mantén los valores de color actuales
+      gl.uniform3f(lightUniform.LaIndex, lightUniform.La[0], lightUniform.La[1], lightUniform.La[2]);
+      gl.uniform3f(lightUniform.LdIndex, lightUniform.Ld[0], lightUniform.Ld[1], lightUniform.Ld[2]);
+      gl.uniform3f(lightUniform.LsIndex, lightUniform.Ls[0], lightUniform.Ls[1], lightUniform.Ls[2]);
+  } else {
+      // Si la luz está apagada, pon las intensidades a 0
+      gl.uniform3f(lightUniform.LaIndex, 0.0, 0.0, 0.0);
+      gl.uniform3f(lightUniform.LdIndex, 0.0, 0.0, 0.0);
+      gl.uniform3f(lightUniform.LsIndex, 0.0, 0.0, 0.0);
+  }
 }
 
 function initWebGL() {
@@ -294,7 +351,6 @@ function initWebGL() {
   initPrimitives();
   initRendering();
   initHandlers();
-  updateCameraVectors();
   requestAnimationFrame(drawScene);
 }
 
