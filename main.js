@@ -1,15 +1,5 @@
 var gl, program;
 var myZeta = 0.0, myPhi = Math.PI/2.0, radius = 4, fovy = 1.4;
-var selectedPrimitive = exampleOBJ;
-
-// Variables de cámara
-var cameraPosition = [0.0, 2.0, 5.0];  // Posición inicial más cercana al suelo
-var cameraFront = [0.0, 0.0, -1.0];    // Mirando hacia adelante por defecto
-var cameraUp = [0.0, 1.0, 0.0];
-var yaw = -90.0;                       // Rotación inicial
-var pitch = 0.0;
-var moveSpeed = 0.1;                   // Velocidad reducida para más control
-var sensitivity = 0.1;
 
 function getWebGLContext() {
   var canvas = document.getElementById("myCanvas");
@@ -82,7 +72,7 @@ function initPrimitives() {
   initBuffers(examplePlane); //Suelo
   initBuffers(exampleCube); //Cubo
 
-  initBuffers(exampleOBJ); //Suzzane
+  initBuffers(suzzane); //Suzzane
 }
 
 function setShaderProjectionMatrix(projectionMatrix) {
@@ -103,13 +93,6 @@ function getNormalMatrix(modelViewMatrix) {
 
 function getProjectionMatrix() {
   return mat4.perspective(mat4.create(), fovy, 1.0, 0.1, 100.0);
-}
-
-function getCameraMatrix() {
-  var x = radius * Math.sin(myPhi) * Math.sin(myZeta);
-  var y = radius * Math.cos(myPhi);
-  var z = radius * Math.sin(myPhi) * Math.cos(myZeta);
-  return mat4.lookAt(mat4.create(), [x, y, z], [0, 0, 0], [0, 1, 0]);
 }
 
 function setShaderLight() {
@@ -137,163 +120,6 @@ function drawSolid(model) {
 
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.idBufferIndices);
   gl.drawElements(gl.TRIANGLES, model.indices.length, gl.UNSIGNED_SHORT, 0);
-}
-
-function drawScene() {
-  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-  setShaderProjectionMatrix(getProjectionMatrix());
-
-  // Dibujar el objeto seleccionado
-  var modelMatrix = mat4.create();
-  var modelViewMatrix = mat4.create();
-  mat4.fromTranslation(modelMatrix, [0.0, 2, 0.0]);
-  mat4.multiply(modelViewMatrix, getCameraMatrix(), modelMatrix);
-  setShaderModelViewMatrix(modelViewMatrix);
-
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrix));
-  drawSolidOBJ(selectedPrimitive);
-
-  // Dibujar el cubo
-  var modelMatrixCube = mat4.create();
-  var modelViewMatrixCube = mat4.create();
-  mat4.translate(modelMatrixCube, modelMatrixCube, [0.0, 0.5, 0.0]);
-  mat4.scale(modelMatrixCube, modelMatrixCube, [3, 1, 3]);
-  mat4.multiply(modelViewMatrixCube, getCameraMatrix(), modelMatrixCube);
-  setShaderModelViewMatrix(modelViewMatrixCube);
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCube));
-  drawSolid(exampleCube);
-
-  // Dibujar el plano (suelo)
-  var modelMatrixPlane = mat4.create();
-  var modelViewMatrixPlane = mat4.create();
-  mat4.fromTranslation(modelMatrixPlane, [0.0, 0.0, 0.0]); // Mover el plano debajo del cubo
-  mat4.fromScaling(modelMatrixPlane, [20.0, 1.0, 20.0]); // Escalar el plano
-  mat4.multiply(modelViewMatrixPlane, getCameraMatrix(), modelMatrixPlane);
-  setShaderModelViewMatrix(modelViewMatrixPlane);
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrixPlane));
-  drawSolid(examplePlane); // Dibujar el plano
-
-  // Ajustes para las paredes
-  var wallThickness = 0.5; // Grosor de las paredes
-  var wallHeight = 5.0;    // Altura de las paredes
-  var planeLength = 20.0;  // Dimensiones del plano (escala aplicada)
-
-  // Pared Frontal
-  var modelMatrixWallFront = mat4.create();
-  var modelViewMatrixWallFront = mat4.create();
-  mat4.translate(modelMatrixWallFront, modelMatrixWallFront, [0.0, wallHeight / 2.0, planeLength/2]);
-  mat4.scale(modelMatrixWallFront, modelMatrixWallFront, [planeLength, wallHeight, wallThickness]);
-  mat4.multiply(modelViewMatrixWallFront, getCameraMatrix(), modelMatrixWallFront);
-  setShaderModelViewMatrix(modelViewMatrixWallFront);
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrixWallFront));
-  drawSolid(exampleCube);
-
-  // Pared Trasera
-  var modelMatrixWallBack = mat4.create();
-  var modelViewMatrixWallBack = mat4.create();
-  mat4.translate(modelMatrixWallBack, modelMatrixWallBack, [0.0, wallHeight / 2.0, -planeLength/2]);
-  mat4.scale(modelMatrixWallBack, modelMatrixWallBack, [planeLength, wallHeight, wallThickness]);
-  mat4.multiply(modelViewMatrixWallBack, getCameraMatrix(), modelMatrixWallBack);
-  setShaderModelViewMatrix(modelViewMatrixWallBack);
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrixWallBack));
-  drawSolid(exampleCube);
-
-  // Pared Izquierda
-  var modelMatrixWallLeft = mat4.create();
-  var modelViewMatrixWallLeft = mat4.create();
-  mat4.translate(modelMatrixWallLeft, modelMatrixWallLeft, [-planeLength/2, wallHeight / 2.0, 0.0]);
-  mat4.scale(modelMatrixWallLeft, modelMatrixWallLeft, [wallThickness, wallHeight, planeLength]);
-  mat4.multiply(modelViewMatrixWallLeft, getCameraMatrix(), modelMatrixWallLeft);
-  setShaderModelViewMatrix(modelViewMatrixWallLeft);
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrixWallLeft));
-  drawSolid(exampleCube);
-
-  // Pared Derecha
-  var modelMatrixWallRight = mat4.create();
-  var modelViewMatrixWallRight = mat4.create();
-  mat4.translate(modelMatrixWallRight, modelMatrixWallRight, [planeLength/2, wallHeight / 2.0, 0.0]);
-  mat4.scale(modelMatrixWallRight, modelMatrixWallRight, [wallThickness, wallHeight, planeLength]);
-  mat4.multiply(modelViewMatrixWallRight, getCameraMatrix(), modelMatrixWallRight);
-  setShaderModelViewMatrix(modelViewMatrixWallRight);
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrixWallRight));
-  drawSolid(exampleCube);
-
-  // Dibujar el plano (techo)
-  var modelMatrixCeiling = mat4.create();
-  var modelViewMatrixCeiling = mat4.create();
-  mat4.translate(modelMatrixCeiling, modelMatrixCeiling, [0.0, wallHeight, 0.0]);
-  mat4.scale(modelMatrixCeiling, modelMatrixCeiling, [20.0, 1.0, 20.0]);
-  mat4.multiply(modelViewMatrixCeiling, getCameraMatrix(), modelMatrixCeiling);
-  setShaderModelViewMatrix(modelViewMatrixCeiling);
-  setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCeiling));
-  drawSolid(examplePlane); // Dibujar el plano
-}
-
-// Función para actualizar los vectores de la cámara
-function updateCameraVectors() {
-    // Convertir los ángulos a radianes y calcular las componentes del vector
-    const yawRad = glMatrix.toRadian(yaw);
-    const pitchRad = glMatrix.toRadian(pitch);
-    
-    // Calcular el nuevo vector frontal
-    cameraFront[0] = Math.cos(yawRad) * Math.cos(pitchRad);
-    cameraFront[1] = Math.sin(pitchRad);
-    cameraFront[2] = Math.sin(yawRad) * Math.cos(pitchRad);
-    
-    // Normalizar el vector frontal
-    vec3.normalize(cameraFront, cameraFront);
-}
-
-function checkCollision(newPosition) {
-  // Dimensiones de la habitación
-  const roomWidth = 20.0;
-  const roomDepth = 20.0;
-  const collisionMargin = 0.5;
-  
-  // Límites de la habitación
-  const minX = -roomWidth/2 + collisionMargin;
-  const maxX = roomWidth/2 - collisionMargin;
-  const minZ = -roomDepth/2 + collisionMargin;
-  const maxZ = roomDepth/2 - collisionMargin;
-  
-  // Dimensiones del cubo
-  const cubePosition = [0.0, 0.5, 0.0];  // Posición del centro del cubo
-  const cubeSize = 1.0;  // Tamaño del cubo
-  const cubeMargin = collisionMargin;
-  
-  // Comprobar colisión con el cubo
-  const distanceToCube = {
-      x: Math.abs(newPosition[0] - cubePosition[0]),
-      z: Math.abs(newPosition[2] - cubePosition[2])
-  };
-  
-  // Si estamos dentro del área del cubo
-  if (distanceToCube.x < (cubeSize/2 + cubeMargin) && 
-      distanceToCube.z < (cubeSize/2 + cubeMargin)) {
-      
-      // Calcular la dirección desde la que venimos
-      const fromDirection = vec3.subtract(vec3.create(), newPosition, cameraPosition);
-      
-      // Determinar en qué lado del cubo estamos y ajustar la posición
-      if (distanceToCube.x > distanceToCube.z) {
-          // Colisión en el eje X
-          newPosition[0] = cubePosition[0] + 
-                         (newPosition[0] > cubePosition[0] ? 1 : -1) * 
-                         (cubeSize/2 + cubeMargin);
-      } else {
-          // Colisión en el eje Z
-          newPosition[2] = cubePosition[2] + 
-                         (newPosition[2] > cubePosition[2] ? 1 : -1) * 
-                         (cubeSize/2 + cubeMargin);
-      }
-  }
-  
-  // Aplicar restricciones de la habitación
-  return [
-      Math.max(minX, Math.min(maxX, newPosition[0])),
-      newPosition[1],
-      Math.max(minZ, Math.min(maxZ, newPosition[2]))
-  ];
 }
 
 function initHandlers() {
@@ -376,12 +202,6 @@ function initHandlers() {
   }
 
     requestAnimationFrame(updateMovement);
-}
-
-function getCameraMatrix() {
-    const target = vec3.create();
-    vec3.add(target, cameraPosition, cameraFront);
-    return mat4.lookAt(mat4.create(), cameraPosition, target, cameraUp);
 }
 
 function initWebGL() {
