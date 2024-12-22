@@ -76,7 +76,6 @@ function initBuffers(model) {
   gl.bindBuffer (gl.ARRAY_BUFFER, model.idBufferVertices);
   gl.bufferData (gl.ARRAY_BUFFER, new Float32Array(model.vertices), gl.STATIC_DRAW);
     
-  // here we should pass the buffer for normals
   model.idBufferNormals = gl.createBuffer ();
   gl.bindBuffer (gl.ARRAY_BUFFER, model.idBufferNormals);
   gl.bufferData (gl.ARRAY_BUFFER, new Float32Array(model.vertexNormals), gl.STATIC_DRAW);
@@ -88,8 +87,9 @@ function initBuffers(model) {
 }
 
 function initPrimitives() {
-  initBuffers(examplePlane); //Suelo
+  initBuffers(examplePlane); //Planos
   initBuffers(exampleCube); //Cubo
+  initBuffers(exampleSphere); //Esfera
 
   initBuffers(suzzane); //Suzzane
 }
@@ -133,7 +133,7 @@ function setShaderMaterial(material) {
   
 }
 
-var Lpos = [.0, .0, 1.0, 1];
+var Lpos = [0.0, 4.75, 9.75, 1];
 function setShaderLight() {
 
   gl.uniform3f(program.LaIndex,        1.0,  1.0, 1.0);

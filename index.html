@@ -115,9 +115,10 @@ fragmentColor = vec4 ( phong (n ,L ,V) , 1.0);
   
   <body>
     <div id="leftPanel">
-        <h1>Práctica 3</h1>
-        <p><strong>Controles de movimiento:</strong> Usa las teclas <code>W</code>, <code>A</code>, <code>S</code>, <code>D</code>.</p>
-        <p>Haz click en el canvas para ver la escena mover la cámara.</p>
+        <h1>Lighting & Textures</h1>
+        <p>Click on the canvas to see the scene and move the camera.</p>
+        <p><strong>Movement controls:</strong></p>
+        <p>Use the <code>W</code>, <code>A</code>, <code>S</code> and <code>D</code> keys to move around the room.</p>
       </div>
     
       <div>
@@ -127,9 +128,10 @@ fragmentColor = vec4 ( phong (n ,L ,V) , 1.0);
       </div>
     
       <div id="rightPanel">
-        <p><strong>Luz ambiental: </strong><input type="color" name="La" value="#ffffff"></p>
-        <p><strong>Luz difusa: </strong><input type="color" name="Ld" value="#ffffff"></p>
-        <p><strong>Luz especular: </strong><input type="color" name="Ls" value="#ffffff"></p>
+        <h2>Light 1</h2>
+        <p><strong>Ambient: </strong><input type="color" name="La" value="#ffffff"></p>
+        <p><strong>Diffuse: </strong><input type="color" name="Ld" value="#ffffff"></p>
+        <p><strong>Specular: </strong><input type="color" name="Ls" value="#ffffff"></p>
       </div>
     
     <script src="gl-matrix-min.js"></script>

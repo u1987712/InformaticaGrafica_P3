@@ -5,6 +5,7 @@
     drawRoom();
     drawCube();
     drawSuzzane();  
+    drawLight();
   }
 
   function drawRoom(){
@@ -102,4 +103,17 @@
     setShaderNormalMatrix(getNormalMatrix(modelViewMatrix));
     setShaderMaterial(Polished_gold);
     drawSolidOBJ(suzzane);
+  }
+
+  function drawLight(){
+    var modelMatrix = mat4.create();
+    var modelViewMatrix = mat4.create()
+    mat4.translate(modelMatrix, modelMatrix, Lpos);
+    mat4.scale(modelMatrix, modelMatrix, [0.25, 0.25, 0.25]);
+    mat4.multiply(modelViewMatrix, getCameraMatrix(), modelMatrix);
+    setShaderModelViewMatrix(modelViewMatrix);
+    
+    setShaderNormalMatrix(getNormalMatrix(modelViewMatrix) );
+    setShaderMaterial(White_plastic);
+    drawSolid(exampleSphere);
   }
