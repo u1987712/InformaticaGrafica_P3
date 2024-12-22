@@ -249,7 +249,38 @@ function initHandlers() {
       requestAnimationFrame(updateMovement);
   }
 
+  var colors = document.getElementsByTagName("input");
+
+  for (var i = 0; i < colors.length; i++) {
+    colors[i].addEventListener("change",
+    function(){
+      switch (this.getAttribute("name")) {
+        case "La": setColor(program.LaIndex, colors[0].value); break;
+        case "Ld": setColor(program.LdIndex, colors[1].value); break;
+        case "Ls": setColor(program.LsIndex, colors[2].value); break;
+      }
+      requestAnimationFrame(drawScene);
+    },
+    false);
+  }
+
     requestAnimationFrame(updateMovement);
+}
+
+function setColor (index, value) {
+
+  var myColor = value.substr(1); // para eliminar el # del #FCA34D
+      
+  var r = myColor.charAt(0) + '' + myColor.charAt(1);
+  var g = myColor.charAt(2) + '' + myColor.charAt(3);
+  var b = myColor.charAt(4) + '' + myColor.charAt(5);
+
+  r = parseInt(r, 16) / 255.0;
+  g = parseInt(g, 16) / 255.0;
+  b = parseInt(b, 16) / 255.0;
+  
+  gl.uniform3f(index, r, g, b);
+  
 }
 
 function initWebGL() {
