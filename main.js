@@ -1,5 +1,7 @@
 var gl, program;
 var myZeta = 0.0, myPhi = Math.PI/2.0, radius = 4, fovy = 1.4;
+var lightStates = [true, true, true]; // Luz 1, Luz 2, Luz 3
+var lightIntensities = [0.5, 0.5, 0.5]; // Intensidades de las luces
 
 function getWebGLContext() {
   var canvas = document.getElementById("myCanvas");
@@ -300,7 +302,7 @@ function initHandlers() {
       }, false);
   }
 
-  var lights = document.querySelectorAll("input[type=checkbox]");
+  /*var lights = document.querySelectorAll("input[type=checkbox]");
 
   for (var i = 0; i < lights.length; i++) {
       lights[i].addEventListener("change", function() {
@@ -308,7 +310,48 @@ function initHandlers() {
           updateLightState(lightIndex, this.checked);
           requestAnimationFrame(drawScene);
       }, false);
-  }
+  }*/
+
+// Obtener los elementos de control
+var lightToggle1 = document.getElementById("light1-toggle");
+var lightToggle2 = document.getElementById("light2-toggle");
+var lightToggle3 = document.getElementById("light3-toggle");
+
+var intensitySlider1 = document.getElementById("light1-intensity");
+var intensitySlider2 = document.getElementById("light2-intensity");
+var intensitySlider3 = document.getElementById("light3-intensity");
+
+// Evento para encender/apagar las luces
+lightToggle1.addEventListener("change", function() {
+    lightStates[0] = this.checked;
+    updateLight(0); // Actualizar la luz 1
+});
+
+lightToggle2.addEventListener("change", function() {
+    lightStates[1] = this.checked;
+    updateLight(1); // Actualizar la luz 2
+});
+
+lightToggle3.addEventListener("change", function() {
+    lightStates[2] = this.checked;
+    updateLight(2); // Actualizar la luz 3
+});
+
+// Evento para cambiar la intensidad
+intensitySlider1.addEventListener("input", function() {
+    lightIntensities[0] = parseFloat(this.value);
+    updateLight(0); // Actualizar la luz 1
+});
+
+intensitySlider2.addEventListener("input", function() {
+    lightIntensities[1] = parseFloat(this.value);
+    updateLight(1); // Actualizar la luz 2
+});
+
+intensitySlider3.addEventListener("input", function() {
+    lightIntensities[2] = parseFloat(this.value);
+    updateLight(2); // Actualizar la luz 3
+});
 
     requestAnimationFrame(updateMovement);
 }
@@ -323,20 +366,22 @@ function setColor(index, value, lightIndex) {
   gl.uniform3f(index, r, g, b); // Para la fuente de luz correspondiente
 }
 
-function updateLightState(lightIndex, isChecked) {
-  // Si el checkbox está marcado, la luz está encendida; si no, apagada
+// Función para actualizar la luz (color, encendido/apagado, intensidad)
+function updateLight(lightIndex) {
   var lightUniform = program.lightUniforms[lightIndex];
+  var lightState = lightStates[lightIndex];
+  var intensity = lightIntensities[lightIndex];
 
-  if (isChecked) {
-      // Si la luz está encendida, mantén los valores de color actuales
-      gl.uniform3f(lightUniform.LaIndex, lightUniform.La[0], lightUniform.La[1], lightUniform.La[2]);
-      gl.uniform3f(lightUniform.LdIndex, lightUniform.Ld[0], lightUniform.Ld[1], lightUniform.Ld[2]);
-      gl.uniform3f(lightUniform.LsIndex, lightUniform.Ls[0], lightUniform.Ls[1], lightUniform.Ls[2]);
+  if (!lightState) {
+      // Apagar la luz
+      gl.uniform3f(lightUniform.LaIndex, 0, 0, 0);
+      gl.uniform3f(lightUniform.LdIndex, 0, 0, 0);
+      gl.uniform3f(lightUniform.LsIndex, 0, 0, 0);
   } else {
-      // Si la luz está apagada, pon las intensidades a 0
-      gl.uniform3f(lightUniform.LaIndex, 0.0, 0.0, 0.0);
-      gl.uniform3f(lightUniform.LdIndex, 0.0, 0.0, 0.0);
-      gl.uniform3f(lightUniform.LsIndex, 0.0, 0.0, 0.0);
+      // Encender con intensidad
+      gl.uniform3f(lightUniform.LaIndex, intensity, intensity, intensity);
+      gl.uniform3f(lightUniform.LdIndex, intensity, intensity, intensity);
+      gl.uniform3f(lightUniform.LsIndex, intensity, intensity, intensity);
   }
 }
 
@@ -352,6 +397,10 @@ function initWebGL() {
   initRendering();
   initHandlers();
   requestAnimationFrame(drawScene);
+  // Llamada inicial para configurar las luces al inicio
+  updateLight(0);
+  updateLight(1);
+  updateLight(2);
 }
 
 initWebGL();

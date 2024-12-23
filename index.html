@@ -141,23 +141,29 @@ void main() {
         <p><strong>Ambient: </strong><input type="color" name="La1" value="#ffffff"></p>
         <p><strong>Diffuse: </strong><input type="color" name="Ld1" value="#ffffff"></p>
         <p><strong>Specular: </strong><input type="color" name="Ls1" value="#ffffff"></p>
-        <label for="light1"><strong>ON/OFF</strong></label>
-        <input type="checkbox" id="light1" checked>
+        <label for="light1-toggle"><strong>ON/OFF</strong></label>
+        <input type="checkbox" id="light1-toggle" checked>
+        <label for="light1-intensity"><strong>Intensity:</strong></label><input type="range" id="light1-intensity" min="0" max="2" step="0.1" value="1">
+        <br>
+
 
         <h2>Left light</h2>
         <p><strong>Ambient: </strong><input type="color" name="La2" value="#ffffff"></p>
         <p><strong>Diffuse: </strong><input type="color" name="Ld2" value="#ffffff"></p>
         <p><strong>Specular: </strong><input type="color" name="Ls2" value="#ffffff"></p>
-        <label for="light2"><strong>ON/OFF</strong></label>
-        <input type="checkbox" id="light2" checked>
+        <label for="light2-toggle"><strong>ON/OFF</strong></label>
+        <input type="checkbox" id="light2-toggle" checked>
+        <label for="light2-intensity"><strong>Intensity:</strong></label><input type="range" id="light2-intensity" min="0" max="2" step="0.1" value="1">
+        <br>
 
         <h2>Right light</h2>
         <p><strong>Ambient: </strong><input type="color" name="La3" value="#ffffff"></p>
         <p><strong>Diffuse: </strong><input type="color" name="Ld3" value="#ffffff"></p>
         <p><strong>Specular: </strong><input type="color" name="Ls3" value="#ffffff"></p>
-        <label for="light3"><strong>ON/OFF</strong></label>
-        <input type="checkbox" id="light3" checked>
-        
+        <label for="light3-toggle"><strong>ON/OFF</strong></label>
+        <input type="checkbox" id="light3-toggle" checked>
+        <label for="light3-intensity"><strong>Intensity:</strong></label><input type="range" id="light3-intensity" min="0" max="2" step="0.1" value="1">
+        <br>
       </div>
     
     <script src="gl-matrix-min.js"></script>
