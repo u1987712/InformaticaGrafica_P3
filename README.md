@@ -13,4 +13,4 @@ He desarrollado una escena en WebGL2 que representa una habitación con un pedes
 - La escena incluye el modelo 3D importado de la cabeza de Suzanne.
 
 *Texturas:
-- No se ha conseguido incorpora texturas de imágenes ni texturas procedurales. (no funcionaba el código, de modo que no he retirado).
+- No se ha conseguido incorpora texturas de imágenes ni texturas procedurales. (no funcionaba el código, de modo que lo he retirado).
