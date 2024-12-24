@@ -3,7 +3,7 @@ He desarrollado una escena en WebGL2 que representa una habitación con un pedes
 
 *Iluminación:
 - La escena está iluminada mediante 3 fuentes de luz. Aunque se han implementado configuraciones básicas, las luces tienen posiciones fijas.
-- No he conseguido desarrollar los shaders no realistas (en el código quedan restos del intento).
+- No se han conseguido desarrollar los shaders no realistas (en el código quedan restos del intento).
 
 *Interactividad:
 - La intensidad y el color de las luces pueden configurarse de forma interactiva. También es posible encender y apagar las luces mediante botones ON/OFF.
@@ -13,4 +13,4 @@ He desarrollado una escena en WebGL2 que representa una habitación con un pedes
 - La escena incluye el modelo 3D importado de la cabeza de Suzanne.
 
 *Texturas:
-- No se han incorporado texturas de imágenes ni texturas procedurales.
+- No se ha conseguido incorpora texturas de imágenes ni texturas procedurales. (no funcionaba el código, de modo que no he retirado).

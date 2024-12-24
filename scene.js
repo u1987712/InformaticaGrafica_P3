@@ -75,11 +75,11 @@
     setShaderModelViewMatrix(modelViewMatrixCeiling);
     setShaderNormalMatrix(getNormalMatrix(modelViewMatrixCeiling));
     setShaderMaterial(White_rubber);
-    drawSolid(examplePlane); // Dibujar el plano
+    drawSolid(examplePlane);
   }
 
   function drawCube(){
-// Dibujar el cubo
+    // Dibujar el cubo
     var modelMatrixCube = mat4.create();
     var modelViewMatrixCube = mat4.create();
     mat4.translate(modelMatrixCube, modelMatrixCube, [0.0, 0.5, 0.0]);

@@ -1,3 +1,4 @@
+<!--Gemma Reina Lara - u1987712-->
 <!DOCTYPE html>
 <html>
 
@@ -42,39 +43,46 @@
     }
     </style>
 
+<!--Shader de vértices-->
 <script id="myVertexShader" 
 type="x-shader/x-vertex">#version 300 es
+//Variables uniformes para transformaciones y normales
 uniform mat4 projectionMatrix, modelViewMatrix;
 uniform mat3 normalMatrix;
+
+//Variaables de entrada y salida del shader
 in vec3 VertexPosition;
 in vec3 VertexNormal;
 out vec3 N, ec;
 
 void main () {
+  //Normalizar la normal del vértice
 N = normalize (normalMatrix * VertexNormal);
+
+//Transformar posición del vértice al espacio de la cámara
 vec4 ecPosition = modelViewMatrix * vec4 (VertexPosition , 1.0);
 ec = vec3(ecPosition);
-gl_Position = projectionMatrix * ecPosition;
+gl_Position = projectionMatrix * ecPosition; //Posición final del vértice
 }
 
 </script>
 
+<!--Shader de fragmentos para iluminación Phong-->
 <script id="myFragmentShader" 
 type="x-shader/x-fragment">#version 300 es
 
 precision mediump float;
 
-
-precision mediump float;
-
+//Estructura con las propiedades de las luces
 struct LightData {
-    vec3 Position; // Posición en coordenadas del ojo
+    vec3 Position; // Posición en coordenadas
     vec3 La;       // Ambiente
     vec3 Ld;       // Difusa
     vec3 Ls;       // Especular
 };
 uniform LightData Light[3]; // Array de 3 luces
 
+//Estructura con las propiedades del material
 struct MaterialData {
     vec3 Ka;       // Ambiente
     vec3 Kd;       // Difusa
@@ -83,15 +91,16 @@ struct MaterialData {
 };
 uniform MaterialData Material;
 
+//Función Phong para calcular el color según las luces y el material
 vec3 phong(vec3 N, vec3 L, vec3 V, LightData light) {
     vec3 ambient = Material.Ka * light.La;
     vec3 diffuse = vec3(0.0);
     vec3 specular = vec3(0.0);
 
-    float NdotL = dot(N, L);
+    float NdotL = dot(N, L); // Producto escalar entre la normal y la dirección de la luz
 
     if (NdotL > 0.0) {
-        vec3 R = reflect(-L, N);
+        vec3 R = reflect(-L, N); //Reflejo especular
         float RdotV_n = pow(max(0.0, dot(R,V)), Material.alpha);
 
         diffuse = NdotL * (light.Ld * Material.Kd);
@@ -101,17 +110,17 @@ vec3 phong(vec3 N, vec3 L, vec3 V, LightData light) {
     return (ambient + diffuse + specular);
 }
 
-in vec3 N, ec;
+in vec3 N, ec; //Normales y posición del fragmento
 out vec4 fragmentColor;
 
 void main() {
     vec3 n = normalize(N);
-    vec3 V = normalize(-ec);
+    vec3 V = normalize(-ec); //Dirección de la cámara
     
     // Sumar la contribución de cada luz
     vec3 finalColor = vec3(0.0);
     
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 3; i++) { //Cálculo del color final con las tres luces
         vec3 L = normalize(Light[i].Position - ec);
         finalColor += phong(n, L, V, Light[i]);
     }
@@ -120,7 +129,7 @@ void main() {
 }
 </script>
 
-<!-- Toon shader que no funcio
+<!-- Toon shader que no funciona
 <script id="toonVertexShader" type="x-shader/x-vertex">#version 300 es
   uniform mat4 projectionMatrix, modelViewMatrix;
   uniform mat3 normalMatrix;
@@ -193,6 +202,7 @@ void main() {
   </head>
   
   <body>
+    <!-- Panel izquierdo con descripción -->
     <div id="leftPanel">
         <h1>Lighting & Textures</h1>
         <p>Click on the canvas to see the scene and move the camera.</p>
@@ -200,15 +210,19 @@ void main() {
         <p>Use the <code>W</code>, <code>A</code>, <code>S</code> and <code>D</code> keys to move around the room.</p>
       </div>
     
+      <!-- Canvas donde se renderizará la escena -->
       <div>
         <canvas id="myCanvas" width="1200" height="1200">
           El Navegador no soporta HTML5
         </canvas>
       </div>
-    
+
+      <!-- Panel derecho para controles de iluminación -->    
       <div id="rightPanel">
+         <!-- Controles para alternar shaders -->
         <h2>Toon Shader</h2><button id="shaderToggle">ON/OFF</button>
 
+        <!-- Configuración de las luces -->
         <h2>Central light</h2>
         <p><strong>Ambient: </strong><input type="color" name="La1" value="#ffffff"></p>
         <p><strong>Diffuse: </strong><input type="color" name="Ld1" value="#ffffff"></p>
@@ -246,7 +260,6 @@ void main() {
     <script src="main.js"></script>
     <script src="camera.js"></script>
     <script src="scene.js"></script>
-    <!--<script src="shaders.js"></script>-->
 
   </body>
   
